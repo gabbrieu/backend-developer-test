@@ -24,24 +24,24 @@ Your solution should incorporate the following components and libraries:
 
 Convert the following use cases into API endpoints:
 
-- `GET /companies`: List existing companies.
-- `GET /companies/:company_id`: Fetch a specific company by ID.
-- `POST /job`: Create a job posting draft.
-- `PUT /job/:job_id/publish`: Publish a job posting draft.
-- `PUT /job/:job_id`: Edit a job posting draft (title, location, description).
-- `DELETE /job/:job_id`: Delete a job posting draft.
-- `PUT /job/:job_id/archive`: Archive an active job posting.
+-   `GET /companies`: List existing companies.
+-   `GET /companies/:company_id`: Fetch a specific company by ID.
+-   `POST /job`: Create a job posting draft.
+-   `PUT /job/:job_id/publish`: Publish a job posting draft.
+-   `PUT /job/:job_id`: Edit a job posting draft (title, location, description).
+-   `DELETE /job/:job_id`: Delete a job posting draft.
+-   `PUT /job/:job_id/archive`: Archive an active job posting.
 
 ### Integration Features
 
-- Implement a `GET /feed` endpoint to serve a job feed in JSON format, containing published jobs (column `status = 'published'`). Use a caching mechanism to handle high traffic, fetching data from an S3 file updated periodically by an AWS Lambda function. The feed should return the job ID, title, description, company name and the date when the job was created. This endpoint should not query the database, the content must be fetched from S3.
-- This endpoint receives a massive number of requests every minute, so the strategy here is to implement a simple cache mechanism that will fetch a previously stored JSON file containing the published jobs and serve the content in the API. You need to implement a serverless component using AWS Lambda, that will periodically query the published jobs and store the content on S3. The `GET /feed` endpoint should fetch the S3 file and serve the content. You don't need to worry about implementing the schedule, assume it is already created using AWS EventBridge. You only need to create the Lambda component, using NodeJS 20 as a runtime.
+-   Implement a `GET /feed` endpoint to serve a job feed in JSON format, containing published jobs (column `status = 'published'`). Use a caching mechanism to handle high traffic, fetching data from an S3 file updated periodically by an AWS Lambda function. The feed should return the job ID, title, description, company name and the date when the job was created. This endpoint should not query the database, the content must be fetched from S3.
+-   This endpoint receives a massive number of requests every minute, so the strategy here is to implement a simple cache mechanism that will fetch a previously stored JSON file containing the published jobs and serve the content in the API. You need to implement a serverless component using AWS Lambda, that will periodically query the published jobs and store the content on S3. The `GET /feed` endpoint should fetch the S3 file and serve the content. You don't need to worry about implementing the schedule, assume it is already created using AWS EventBridge. You only need to create the Lambda component, using NodeJS 20 as a runtime.
 
 ### Extra Feature (Optional)
 
-- **Job Moderation**: using artificial intelligence, we need to moderate the job content before allowing it to be published, to check for potential harmful content.
-Every time a user requests a job publication (`PUT /job/:job_id/publish`), the API should reply with success to the user, but the job should not be immediately published. It should be queued using AWS SQS, feeding the job to a Lambda component.
-Using OpenAI's free moderation API, create a Lambda component that will evaluate the job title and description, and test for hamrful content. If the content passes the evaluation, the component should change the job status to `published`, otherwise change to `rejected` and add the response from OpenAI API to the `notes` column.
+-   **Job Moderation**: using artificial intelligence, we need to moderate the job content before allowing it to be published, to check for potential harmful content.
+    Every time a user requests a job publication (`PUT /job/:job_id/publish`), the API should reply with success to the user, but the job should not be immediately published. It should be queued using AWS SQS, feeding the job to a Lambda component.
+    Using OpenAI's free moderation API, create a Lambda component that will evaluate the job title and description, and test for hamrful content. If the content passes the evaluation, the component should change the job status to `published`, otherwise change to `rejected` and add the response from OpenAI API to the `notes` column.
 
 ### Bonus Questions
 
@@ -60,13 +60,13 @@ Using OpenAI's free moderation API, create a Lambda component that will evaluate
 
 We will assess:
 
-- Knowledge of JavaScript, Node.js, Express.js.
-- Proficiency with serverless components (Lambda, SQS).
-- Application structure and layering.
-- Effective use of environment variables.
-- Implementation of unit tests, logging, and error handling.
-- Documentation quality and code readability.
-- Commit history and overall code organization.
+-   Knowledge of JavaScript, Node.js, Express.js.
+-   Proficiency with serverless components (Lambda, SQS).
+-   Application structure and layering.
+-   Effective use of environment variables.
+-   Implementation of unit tests, logging, and error handling.
+-   Documentation quality and code readability.
+-   Commit history and overall code organization.
 
 Good luck, and we're looking forward to seeing your innovative solutions!
 Implementation of the user actions and integration features is considered mandatory for the assessment. The extra feature and the bonus questions are optional, but we encourage you to complete them as well, it will give you an additional edge over other candidates.

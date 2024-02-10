@@ -1,0 +1,17 @@
+service: backend-developer-test-serverless
+
+plugins:
+    - serverless-offline
+provider:
+    name: aws
+    runtime: nodejs20.x
+functions:
+    main:
+        handler: dist/main.handler
+        events:
+            - http:
+                  method: ANY
+                  path: /
+            - http:
+                  method: ANY
+                  path: '{proxy+}'
