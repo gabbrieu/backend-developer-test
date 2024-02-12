@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, Param } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Company } from './entities/companies.entity';
-import { FindAllCompaniesUseCase } from './use-cases/find-all-companies.use-case';
-import { FindOneCompanyUseCase } from './use-cases/find-one-company.use-case';
+import { Company } from '../entities/companies.entity';
+import { FindAllCompaniesUseCase } from '../use-cases/find-all-companies.use-case';
+import { FindOneCompanyUseCase } from '../use-cases/find-one-company.use-case';
 
 @Controller('companies')
 @ApiTags('Companies')

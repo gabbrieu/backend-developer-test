@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CompaniesController } from './companies.controller';
+import { CompaniesController } from './controller/companies.controller';
 import { Company } from './entities/companies.entity';
 import { CompanyRepository } from './repository/company.repository';
 import { FindAllCompaniesUseCase } from './use-cases/find-all-companies.use-case';

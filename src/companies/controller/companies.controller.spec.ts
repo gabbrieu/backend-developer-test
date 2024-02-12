@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Company } from '../entities/companies.entity';
+import { FindAllCompaniesUseCase } from '../use-cases/find-all-companies.use-case';
+import { FindOneCompanyUseCase } from '../use-cases/find-one-company.use-case';
 import { CompaniesController } from './companies.controller';
-import { Company } from './entities/companies.entity';
-import { FindAllCompaniesUseCase } from './use-cases/find-all-companies.use-case';
-import { FindOneCompanyUseCase } from './use-cases/find-one-company.use-case';
 
 describe('CompaniesController', () => {
     let companiesController: CompaniesController;
