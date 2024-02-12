@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Company } from '../entities/companies.entity';
 import { ICompanyRepository } from '../interfaces/company.repository.interface';
 
@@ -9,7 +9,14 @@ export class FindOneCompanyUseCase {
         private readonly companyRepository: ICompanyRepository
     ) {}
 
-    execute(id: string): Promise<Company> {
-        return this.companyRepository.findOne(id);
+    async execute(id: string): Promise<Company> {
+        const company: Company | null =
+            await this.companyRepository.findOne(id);
+
+        if (!company) {
+            throw new NotFoundException('Company does not exist');
+        }
+
+        return company;
     }
 }

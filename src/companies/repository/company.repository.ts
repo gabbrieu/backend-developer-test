@@ -15,7 +15,7 @@ export class CompanyRepository implements ICompanyRepository {
         return await this.companyRepo.find({ order: { name: 'ASC' } });
     }
 
-    async findOne(id: string): Promise<Company> {
+    async findOne(id: string): Promise<Company | null> {
         return await this.companyRepo.findOne({ where: { id } });
     }
 }
