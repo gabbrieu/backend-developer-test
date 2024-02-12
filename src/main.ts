@@ -1,23 +1,24 @@
-import { configure as serverlessExpress } from '@codegenie/serverless-express';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { Callback, Context, Handler } from 'aws-lambda';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
-let server: Handler;
-
-async function bootstrap(): Promise<Handler> {
+async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule);
-    await app.init();
 
-    const expressApp = app.getHttpAdapter().getInstance();
-    return serverlessExpress({ app: expressApp });
+    app.useGlobalPipes(new ValidationPipe({ transform: true })).enableCors();
+
+    const config = new DocumentBuilder()
+        .setTitle('Backend Developer Technical Assessment')
+        .setDescription('Backend Developer Technical Assessment API')
+        .setVersion('1.0')
+        .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+
+    const PORT = Number(process.env.PORT) || 3000;
+    await app.listen(PORT, '0.0.0.0');
 }
 
-export const handler: Handler = async (
-    event: any,
-    context: Context,
-    callback: Callback
-) => {
-    server = server ?? (await bootstrap());
-    return server(event, context, callback);
-};
+bootstrap();
