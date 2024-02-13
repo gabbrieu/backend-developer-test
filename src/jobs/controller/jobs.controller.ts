@@ -20,6 +20,7 @@ import { UpdateJobDTO } from '../dto/update-job.dto';
 import { Job } from '../entities/job.entity';
 import { ArchiveJobUseCase } from '../use-cases/archive-job.use-case';
 import { CreateJobUseCase } from '../use-cases/create-job.use-case';
+import { DeleteJobUseCase } from '../use-cases/delete-job.use-case';
 import { PublishOneJobUseCase } from '../use-cases/publish-one-job.use-case';
 import { UpdateJobUseCase } from '../use-cases/update-job.use-case';
 
@@ -38,7 +39,10 @@ export class JobsController {
         private readonly updateJobUseCase: UpdateJobUseCase,
 
         @Inject(ArchiveJobUseCase)
-        private readonly archiveJobUseCase: ArchiveJobUseCase
+        private readonly archiveJobUseCase: ArchiveJobUseCase,
+
+        @Inject(DeleteJobUseCase)
+        private readonly deleteJobUseCase: DeleteJobUseCase
     ) {}
 
     @Post()
@@ -65,7 +69,7 @@ export class JobsController {
         description: 'Job not found',
     })
     @ApiResponse({
-        status: HttpStatus.UNAUTHORIZED,
+        status: HttpStatus.FORBIDDEN,
         description: `It is only possible to publish a job with "draft" status`,
     })
     @ApiOperation({
@@ -81,11 +85,15 @@ export class JobsController {
         description: 'Job successfully updated',
     })
     @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'Job not found',
+    })
+    @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
         description: 'Error with the body sent',
     })
     @ApiResponse({
-        status: HttpStatus.UNAUTHORIZED,
+        status: HttpStatus.FORBIDDEN,
         description: `It is only possible to update a job with "draft" status`,
     })
     @ApiOperation({
@@ -104,7 +112,11 @@ export class JobsController {
         description: 'Job successfully archived',
     })
     @ApiResponse({
-        status: HttpStatus.UNAUTHORIZED,
+        status: HttpStatus.NOT_FOUND,
+        description: 'Job not found',
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
         description:
             'It is only possible to archive an active job (status flag = "published")',
     })
@@ -117,5 +129,23 @@ export class JobsController {
     }
 
     @Delete(':job_id')
-    async delete(@Param('job_id') id: string) {}
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: 'Job successfully deleted (No response body returned)',
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'Job not found',
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: `It is only possible to delete a job with "draft" status`,
+    })
+    @ApiOperation({
+        summary: 'Deletes a job posting draft',
+    })
+    async delete(@Param('job_id') id: string): Promise<void> {
+        return this.deleteJobUseCase.execute(id);
+    }
 }

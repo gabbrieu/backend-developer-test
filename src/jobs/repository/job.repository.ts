@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, FindOneOptions, Repository } from 'typeorm';
+import {
+    DeepPartial,
+    DeleteResult,
+    FindOneOptions,
+    FindOptionsWhere,
+    Repository,
+} from 'typeorm';
 import { Job } from '../entities/job.entity';
 import { IJobRepository } from '../interfaces/job.repository.interface';
 
@@ -17,5 +23,9 @@ export class JobRepository implements IJobRepository {
 
     async save(job: DeepPartial<Job>): Promise<Job> {
         return await this.jobRepo.save(job);
+    }
+
+    async delete(where: FindOptionsWhere<Job>): Promise<DeleteResult> {
+        return await this.jobRepo.delete(where);
     }
 }
