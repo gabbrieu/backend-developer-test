@@ -1,5 +1,10 @@
 import { Controller, Get, Inject, Param } from '@nestjs/common';
-import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiExtraModels,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 import { Company } from '../entities/companies.entity';
 import { FindAllCompaniesUseCase } from '../use-cases/find-all-companies.use-case';
 import { FindOneCompanyUseCase } from '../use-cases/find-one-company.use-case';
@@ -21,6 +26,9 @@ export class CompaniesController {
         status: 200,
         description: 'Existent companies',
     })
+    @ApiOperation({
+        summary: 'Finds all companies',
+    })
     async findAll(): Promise<Company[]> {
         return this.findAllCompaniesUseCase.execute();
     }
@@ -33,6 +41,9 @@ export class CompaniesController {
     @ApiResponse({
         status: 404,
         description: 'Company not found by id',
+    })
+    @ApiOperation({
+        summary: 'Finds one company by ID',
     })
     async findOne(@Param('company_id') id: string): Promise<Company> {
         return this.findOneCompanyUseCase.execute(id);

@@ -8,7 +8,12 @@ import {
     Post,
     Put,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiExtraModels,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 import { SaveJobDTO } from '../dto/save-job.dto';
 import { UpdateJobDTO } from '../dto/update-job.dto';
 import { Job } from '../entities/job.entity';
@@ -37,6 +42,10 @@ export class JobsController {
         status: 201,
         description: 'Job  successfully created',
     })
+    @ApiOperation({
+        summary: 'Creates a new job',
+        description: 'The related company must exists',
+    })
     async create(@Body() createDTO: SaveJobDTO): Promise<Job> {
         return this.createJobUseCase.execute(createDTO);
     }
@@ -50,11 +59,25 @@ export class JobsController {
         status: 404,
         description: 'Job not found',
     })
+    @ApiOperation({
+        summary: `Publishes the job (changes the status flag to "published")`,
+    })
     async publish(@Param('job_id') id: string): Promise<Job> {
         return this.publishOneJobUseCase.execute(id);
     }
 
     @Put(':job_id')
+    @ApiResponse({
+        status: 200,
+        description: 'Job successfully updated',
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Error with the body sent',
+    })
+    @ApiOperation({
+        summary: 'Updates the job properties',
+    })
     async update(
         @Param('job_id') id: string,
         @Body() updateDTO: UpdateJobDTO
