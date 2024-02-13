@@ -32,7 +32,7 @@ export class Company {
     name: string;
 
     @OneToMany(() => Job, (job) => job.company)
-    jobs: Job[];
+    jobs?: Job[];
 
     @CreateDateColumn({
         type: 'timestamp with time zone',
