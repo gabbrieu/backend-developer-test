@@ -26,9 +26,9 @@ export class UpdateJobUseCase {
         }
 
         // Not using spread operator because linear time complexity and to avoid extra props
-        job.title = updateDTO.title;
-        job.location = updateDTO.location;
-        job.description = updateDTO.description;
+        job.title = updateDTO.title ?? job.title;
+        job.location = updateDTO.location ?? job.location;
+        job.description = updateDTO.description ?? job.description;
 
         return await this.saveJobUseCase.execute(job);
     }
