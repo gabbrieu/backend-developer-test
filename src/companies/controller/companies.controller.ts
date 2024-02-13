@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Param } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, Param } from '@nestjs/common';
 import {
     ApiExtraModels,
     ApiOperation,
@@ -23,7 +23,7 @@ export class CompaniesController {
 
     @Get()
     @ApiResponse({
-        status: 200,
+        status: HttpStatus.OK,
         description: 'Existent companies',
     })
     @ApiOperation({
@@ -35,11 +35,11 @@ export class CompaniesController {
 
     @Get(':company_id')
     @ApiResponse({
-        status: 200,
+        status: HttpStatus.OK,
         description: 'Company found by id',
     })
     @ApiResponse({
-        status: 404,
+        status: HttpStatus.NOT_FOUND,
         description: 'Company not found by id',
     })
     @ApiOperation({

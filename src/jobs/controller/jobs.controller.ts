@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     HttpCode,
+    HttpStatus,
     Inject,
     Param,
     Post,
@@ -17,6 +18,7 @@ import {
 import { SaveJobDTO } from '../dto/save-job.dto';
 import { UpdateJobDTO } from '../dto/update-job.dto';
 import { Job } from '../entities/job.entity';
+import { ArchiveJobUseCase } from '../use-cases/archive-job.use-case';
 import { CreateJobUseCase } from '../use-cases/create-job.use-case';
 import { PublishOneJobUseCase } from '../use-cases/publish-one-job.use-case';
 import { UpdateJobUseCase } from '../use-cases/update-job.use-case';
@@ -33,13 +35,16 @@ export class JobsController {
         private readonly createJobUseCase: CreateJobUseCase,
 
         @Inject(UpdateJobUseCase)
-        private readonly updateJobUseCase: UpdateJobUseCase
+        private readonly updateJobUseCase: UpdateJobUseCase,
+
+        @Inject(ArchiveJobUseCase)
+        private readonly archiveJobUseCase: ArchiveJobUseCase
     ) {}
 
     @Post()
-    @HttpCode(201)
+    @HttpCode(HttpStatus.CREATED)
     @ApiResponse({
-        status: 201,
+        status: HttpStatus.CREATED,
         description: 'Job  successfully created',
     })
     @ApiOperation({
@@ -52,12 +57,16 @@ export class JobsController {
 
     @Put(':job_id/publish')
     @ApiResponse({
-        status: 200,
+        status: HttpStatus.OK,
         description: 'Job successfully published',
     })
     @ApiResponse({
-        status: 404,
+        status: HttpStatus.NOT_FOUND,
         description: 'Job not found',
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: `It is only possible to publish a job with "draft" status`,
     })
     @ApiOperation({
         summary: `Publishes the job (changes the status flag to "published")`,
@@ -68,15 +77,19 @@ export class JobsController {
 
     @Put(':job_id')
     @ApiResponse({
-        status: 200,
+        status: HttpStatus.OK,
         description: 'Job successfully updated',
     })
     @ApiResponse({
-        status: 400,
+        status: HttpStatus.BAD_REQUEST,
         description: 'Error with the body sent',
     })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: `It is only possible to update a job with "draft" status`,
+    })
     @ApiOperation({
-        summary: 'Updates the job properties',
+        summary: 'Updates the title, location and description of a job',
     })
     async update(
         @Param('job_id') id: string,
@@ -86,7 +99,22 @@ export class JobsController {
     }
 
     @Put(':job_id/archive')
-    async archive(@Param('job_id') id: string) {}
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Job successfully archived',
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description:
+            'It is only possible to archive an active job (status flag = "published")',
+    })
+    @ApiOperation({
+        summary:
+            'Archive an active job (changes the status flag to "archived")',
+    })
+    async archive(@Param('job_id') id: string): Promise<Job> {
+        return this.archiveJobUseCase.execute(id);
+    }
 
     @Delete(':job_id')
     async delete(@Param('job_id') id: string) {}
