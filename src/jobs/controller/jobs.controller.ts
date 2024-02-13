@@ -10,9 +10,11 @@ import {
 } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SaveJobDTO } from '../dto/save-job.dto';
+import { UpdateJobDTO } from '../dto/update-job.dto';
 import { Job } from '../entities/job.entity';
-import { CreateJobUseCase } from '../use-cases/create-job-use-case';
+import { CreateJobUseCase } from '../use-cases/create-job.use-case';
 import { PublishOneJobUseCase } from '../use-cases/publish-one-job.use-case';
+import { UpdateJobUseCase } from '../use-cases/update-job.use-case';
 
 @Controller('job')
 @ApiTags('Jobs')
@@ -23,7 +25,10 @@ export class JobsController {
         private readonly publishOneJobUseCase: PublishOneJobUseCase,
 
         @Inject(CreateJobUseCase)
-        private readonly createJobUseCase: CreateJobUseCase
+        private readonly createJobUseCase: CreateJobUseCase,
+
+        @Inject(UpdateJobUseCase)
+        private readonly updateJobUseCase: UpdateJobUseCase
     ) {}
 
     @Post()
@@ -50,7 +55,12 @@ export class JobsController {
     }
 
     @Put(':job_id')
-    async update(@Param('job_id') id: string) {}
+    async update(
+        @Param('job_id') id: string,
+        @Body() updateDTO: UpdateJobDTO
+    ): Promise<Job> {
+        return this.updateJobUseCase.execute(id, updateDTO);
+    }
 
     @Put(':job_id/archive')
     async archive(@Param('job_id') id: string) {}
