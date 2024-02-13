@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { UpdateJobDTO } from '../dto/update-job.dto';
-import { Job } from '../entities/job.entity';
+import { EJobStatus, Job } from '../entities/job.entity';
 import { FindOneJobUseCase } from './find-one-job.use-case';
 import { SaveJobUseCase } from './save-job.use-case';
 
@@ -18,6 +18,12 @@ export class UpdateJobUseCase {
         const job: Job = await this.findOneJobUseCase.execute({
             where: { id },
         });
+
+        if (job.status !== EJobStatus.DRAFT) {
+            throw new ForbiddenException(
+                `It is only possible to update a job with "draft" status`
+            );
+        }
 
         // Not using spread operator because linear time complexity and to avoid extra props
         job.title = updateDTO.title;

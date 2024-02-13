@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { EJobStatus, Job } from '../entities/job.entity';
 import { FindOneJobUseCase } from './find-one-job.use-case';
 import { SaveJobUseCase } from './save-job.use-case';
@@ -18,6 +18,12 @@ export class PublishOneJobUseCase {
             where: { id },
             relations: { company: true },
         });
+
+        if (job.status !== EJobStatus.DRAFT) {
+            throw new ForbiddenException(
+                `It is only possible to publish a job with "draft" status`
+            );
+        }
 
         job.status = EJobStatus.PUBLISHED;
 
