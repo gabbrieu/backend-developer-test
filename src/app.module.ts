@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { CompaniesModule } from './companies/companies.module';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
     imports: [
@@ -21,6 +22,7 @@ import { CompaniesModule } from './companies/companies.module';
             synchronize: true,
         }),
         CompaniesModule,
+        JobsModule,
     ],
 })
 export class AppModule {}
