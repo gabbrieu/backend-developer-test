@@ -1,6 +1,7 @@
+import { ForbiddenException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { makeJobMock } from '../../utils/mocks';
-import { Job } from '../entities/job.entity';
+import { EJobStatus, Job } from '../entities/job.entity';
 import { IJobRepository } from '../interfaces/job.repository.interface';
 import { DeleteJobUseCase } from './delete-job.use-case';
 import { FindOneJobUseCase } from './find-one-job.use-case';
@@ -45,6 +46,19 @@ describe('DeleteJobUseCase', () => {
             });
             expect(repository.delete).toHaveBeenCalledTimes(1);
             expect(repository.delete).toHaveBeenCalledWith({ id: job.id });
+        });
+
+        it('should throw a FORBIDDEN_ERROR when the status job is different than draft', async () => {
+            const job: Job = makeJobMock({ status: EJobStatus.ARCHIVED });
+
+            jest.spyOn(findOneJobUseCase, 'execute').mockResolvedValue(job);
+
+            deleteJobUseCase.execute(job.id).catch((e) => {
+                expect(e).toBeInstanceOf(ForbiddenException);
+                expect(e.message).toEqual(
+                    `It is only possible to delete a job with "draft" status`
+                );
+            });
         });
     });
 });

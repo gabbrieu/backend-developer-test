@@ -53,10 +53,30 @@ describe('UpdateJobUseCase', () => {
             });
         });
 
-        it('should update the job with just one field and keep the older ones', async () => {
+        it('should update only the job description', async () => {
             const job: Job = makeJobMock();
             const updateDTO: UpdateJobDTO = {
                 description: 'Changing description',
+            };
+
+            jest.spyOn(findOneJobUseCase, 'execute').mockResolvedValue(job);
+            jest.spyOn(saveJobUseCase, 'execute').mockResolvedValue({
+                ...job,
+                ...updateDTO,
+            });
+
+            const response = await updateJobUseCase.execute(job.id, updateDTO);
+
+            expect(response).toStrictEqual({
+                ...job,
+                ...updateDTO,
+            });
+        });
+
+        it('should update only the job title', async () => {
+            const job: Job = makeJobMock();
+            const updateDTO: UpdateJobDTO = {
+                title: 'Changing title',
             };
 
             jest.spyOn(findOneJobUseCase, 'execute').mockResolvedValue(job);
@@ -83,7 +103,7 @@ describe('UpdateJobUseCase', () => {
 
             jest.spyOn(findOneJobUseCase, 'execute').mockResolvedValue(job);
 
-            updateJobUseCase.execute('id not found', updateDTO).catch((e) => {
+            updateJobUseCase.execute(job.id, updateDTO).catch((e) => {
                 expect(e).toBeInstanceOf(ForbiddenException);
                 expect(e.message).toEqual(
                     `It is only possible to update a job with "draft" status`
