@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { makeJobMock } from '../../utils/mocks';
 import { EJobStatus, Job } from '../entities/job.entity';
 import { ArchiveJobUseCase } from '../use-cases/archive-job.use-case';
 import { CreateJobUseCase } from '../use-cases/create-job.use-case';
@@ -8,38 +9,6 @@ import { PublishOneJobUseCase } from '../use-cases/publish-one-job.use-case';
 import { SaveJobUseCase } from '../use-cases/save-job.use-case';
 import { UpdateJobUseCase } from '../use-cases/update-job.use-case';
 import { JobsController } from './jobs.controller';
-
-interface JobMockOptions {
-    status?: EJobStatus;
-    title?: string;
-    description?: string;
-    location?: string;
-}
-
-const makeJobMock = (options: JobMockOptions = {}): Job => {
-    const {
-        status = EJobStatus.DRAFT,
-        title = 'Job title',
-        description = 'Job description',
-        location = 'Belo Horizonte',
-    } = options;
-
-    return {
-        id: 'uuid',
-        title,
-        company: {
-            id: 'company uuid',
-            name: 'Company test',
-            created_at: '2024-01-01',
-            updated_at: '2024-01-01',
-        },
-        created_at: '2024-01-01',
-        updated_at: '2024-01-01',
-        description,
-        location,
-        status,
-    };
-};
 
 describe('JobsController', () => {
     let jobsController: JobsController;
