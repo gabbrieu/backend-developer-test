@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { Company } from '../entities/companies.entity';
 import { ICompanyRepository } from '../interfaces/company.repository.interface';
 
@@ -11,11 +11,11 @@ export class CompanyRepository implements ICompanyRepository {
         private readonly companyRepo: Repository<Company>
     ) {}
 
-    async findAll(): Promise<Company[]> {
-        return await this.companyRepo.find({ order: { name: 'ASC' } });
+    async find(options?: FindManyOptions<Company>): Promise<Company[]> {
+        return await this.companyRepo.find(options);
     }
 
-    async findOne(id: string): Promise<Company | null> {
-        return await this.companyRepo.findOne({ where: { id } });
+    async findOne(params: FindOneOptions<Company>): Promise<Company | null> {
+        return await this.companyRepo.findOne(params);
     }
 }

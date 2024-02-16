@@ -6,7 +6,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { Company } from '../entities/companies.entity';
-import { FindAllCompaniesUseCase } from '../use-cases/find-all-companies.use-case';
+import { FindCompaniesUseCase } from '../use-cases/find-companies.use-case';
 import { FindOneCompanyUseCase } from '../use-cases/find-one-company.use-case';
 
 @Controller('companies')
@@ -14,8 +14,8 @@ import { FindOneCompanyUseCase } from '../use-cases/find-one-company.use-case';
 @ApiExtraModels(Company)
 export class CompaniesController {
     constructor(
-        @Inject(FindAllCompaniesUseCase)
-        private readonly findAllCompaniesUseCase: FindAllCompaniesUseCase,
+        @Inject(FindCompaniesUseCase)
+        private readonly findCompaniesUseCase: FindCompaniesUseCase,
 
         @Inject(FindOneCompanyUseCase)
         private readonly findOneCompanyUseCase: FindOneCompanyUseCase
@@ -30,7 +30,7 @@ export class CompaniesController {
         summary: 'Finds all companies',
     })
     async findAll(): Promise<Company[]> {
-        return this.findAllCompaniesUseCase.execute();
+        return this.findCompaniesUseCase.execute({ order: { name: 'ASC' } });
     }
 
     @Get(':company_id')
@@ -46,6 +46,6 @@ export class CompaniesController {
         summary: 'Finds one company by ID',
     })
     async findOne(@Param('company_id') id: string): Promise<Company> {
-        return this.findOneCompanyUseCase.execute(id);
+        return this.findOneCompanyUseCase.execute({ where: { id } });
     }
 }

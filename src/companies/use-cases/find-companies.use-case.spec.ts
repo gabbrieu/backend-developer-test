@@ -1,26 +1,25 @@
 import { Test } from '@nestjs/testing';
 import { Company } from '../entities/companies.entity';
 import { ICompanyRepository } from '../interfaces/company.repository.interface';
-import { FindAllCompaniesUseCase } from './find-all-companies.use-case';
+import { FindCompaniesUseCase } from './find-companies.use-case';
 
-describe('FindAllCompaniesUseCase', () => {
-    let findAllCompaniesUseCase: FindAllCompaniesUseCase;
+describe('FindCompaniesUseCase', () => {
+    let findCompaniesUseCase: FindCompaniesUseCase;
     let repository: ICompanyRepository;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
             providers: [
-                FindAllCompaniesUseCase,
+                FindCompaniesUseCase,
                 {
                     provide: 'ICompanyRepository',
-                    useValue: { findAll: () => jest.fn() },
+                    useValue: { find: () => jest.fn() },
                 },
             ],
         }).compile();
 
-        findAllCompaniesUseCase = module.get<FindAllCompaniesUseCase>(
-            FindAllCompaniesUseCase
-        );
+        findCompaniesUseCase =
+            module.get<FindCompaniesUseCase>(FindCompaniesUseCase);
         repository = module.get('ICompanyRepository');
     });
 
@@ -41,9 +40,9 @@ describe('FindAllCompaniesUseCase', () => {
                 },
             ];
 
-            jest.spyOn(repository, 'findAll').mockResolvedValue(result);
+            jest.spyOn(repository, 'find').mockResolvedValue(result);
 
-            const response = await findAllCompaniesUseCase.execute();
+            const response = await findCompaniesUseCase.execute();
 
             expect(response).toStrictEqual(result);
         });
@@ -51,9 +50,9 @@ describe('FindAllCompaniesUseCase', () => {
         it('should return an empty array when does not exist any company', async () => {
             const result: Company[] = [];
 
-            jest.spyOn(repository, 'findAll').mockResolvedValue(result);
+            jest.spyOn(repository, 'find').mockResolvedValue(result);
 
-            const response = await findAllCompaniesUseCase.execute();
+            const response = await findCompaniesUseCase.execute();
 
             expect(response).toHaveLength(0);
             expect(response).toStrictEqual(result);

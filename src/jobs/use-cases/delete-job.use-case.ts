@@ -1,10 +1,12 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { EJobStatus, Job } from '../entities/job.entity';
 import { IJobRepository } from '../interfaces/job.repository.interface';
 import { FindOneJobUseCase } from './find-one-job.use-case';
 
 @Injectable()
 export class DeleteJobUseCase {
+    private readonly logger = new Logger(DeleteJobUseCase.name);
+
     constructor(
         @Inject(FindOneJobUseCase)
         private readonly findOneJobUseCase: FindOneJobUseCase,
@@ -14,6 +16,8 @@ export class DeleteJobUseCase {
     ) {}
 
     async execute(id: string): Promise<void> {
+        this.logger.log(`Deleting one job by id: ${id}`);
+
         const job: Job = await this.findOneJobUseCase.execute({
             where: { id },
         });

@@ -1,20 +1,20 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Company } from '../entities/companies.entity';
-import { FindAllCompaniesUseCase } from '../use-cases/find-all-companies.use-case';
+import { FindCompaniesUseCase } from '../use-cases/find-companies.use-case';
 import { FindOneCompanyUseCase } from '../use-cases/find-one-company.use-case';
 import { CompaniesController } from './companies.controller';
 
 describe('CompaniesController', () => {
     let companiesController: CompaniesController;
-    let findAllCompaniesUseCase: FindAllCompaniesUseCase;
+    let findCompaniesUseCase: FindCompaniesUseCase;
     let findOneCompanyUseCase: FindOneCompanyUseCase;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
             controllers: [CompaniesController],
             providers: [
-                FindAllCompaniesUseCase,
+                FindCompaniesUseCase,
                 FindOneCompanyUseCase,
                 {
                     provide: 'ICompanyRepository',
@@ -25,9 +25,8 @@ describe('CompaniesController', () => {
 
         companiesController =
             module.get<CompaniesController>(CompaniesController);
-        findAllCompaniesUseCase = module.get<FindAllCompaniesUseCase>(
-            FindAllCompaniesUseCase
-        );
+        findCompaniesUseCase =
+            module.get<FindCompaniesUseCase>(FindCompaniesUseCase);
         findOneCompanyUseCase = module.get<FindOneCompanyUseCase>(
             FindOneCompanyUseCase
         );
@@ -50,7 +49,7 @@ describe('CompaniesController', () => {
                 },
             ];
 
-            jest.spyOn(findAllCompaniesUseCase, 'execute').mockResolvedValue(
+            jest.spyOn(findCompaniesUseCase, 'execute').mockResolvedValue(
                 result
             );
 
@@ -62,7 +61,7 @@ describe('CompaniesController', () => {
         it('should return an empty array when does not exist any company', async () => {
             const result: Company[] = [];
 
-            jest.spyOn(findAllCompaniesUseCase, 'execute').mockResolvedValue(
+            jest.spyOn(findCompaniesUseCase, 'execute').mockResolvedValue(
                 result
             );
 

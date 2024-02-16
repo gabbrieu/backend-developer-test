@@ -1,6 +1,7 @@
+import { FindManyOptions, FindOneOptions } from 'typeorm';
 import { Company } from '../entities/companies.entity';
 
 export interface ICompanyRepository {
-    findAll(): Promise<Company[]>;
-    findOne(id: string): Promise<Company | null>;
+    find(options?: FindManyOptions<Company>): Promise<Company[]>;
+    findOne(params: FindOneOptions<Company>): Promise<Company | null>;
 }

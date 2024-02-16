@@ -36,7 +36,9 @@ describe('FindOneCompanyUseCase', () => {
 
             jest.spyOn(repository, 'findOne').mockResolvedValue(result);
 
-            const response = await findOneCompanyUseCase.execute('uuid');
+            const response = await findOneCompanyUseCase.execute({
+                where: { id: result.id },
+            });
 
             expect(response).toStrictEqual(result);
         });
@@ -44,11 +46,13 @@ describe('FindOneCompanyUseCase', () => {
         it('should throw a NOT_FOUND_ERROR when a company does not exist', async () => {
             jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
-            findOneCompanyUseCase.execute('not_existent_uuid').catch((e) => {
-                expect(e).toBeInstanceOf(NotFoundException);
-                expect(e.message).toEqual('Company does not exist');
-                expect(e.status).toEqual(404);
-            });
+            findOneCompanyUseCase
+                .execute({ where: { id: 'not_existent_uuid' } })
+                .catch((e) => {
+                    expect(e).toBeInstanceOf(NotFoundException);
+                    expect(e.message).toEqual('Company does not exist');
+                    expect(e.status).toEqual(404);
+                });
         });
     });
 });
