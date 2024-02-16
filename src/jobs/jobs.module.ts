@@ -6,6 +6,7 @@ import { JobRepository } from './repository/job.repository';
 import { ArchiveJobUseCase } from './use-cases/archive-job.use-case';
 import { CreateJobUseCase } from './use-cases/create-job.use-case';
 import { DeleteJobUseCase } from './use-cases/delete-job.use-case';
+import { FindJobsUseCase } from './use-cases/find-jobs.use-case';
 import { FindOneJobUseCase } from './use-cases/find-one-job.use-case';
 import { PublishOneJobUseCase } from './use-cases/publish-one-job.use-case';
 import { SaveJobUseCase } from './use-cases/save-job.use-case';
@@ -22,10 +23,12 @@ import { UpdateJobUseCase } from './use-cases/update-job.use-case';
         UpdateJobUseCase,
         ArchiveJobUseCase,
         DeleteJobUseCase,
+        FindJobsUseCase,
         {
             provide: 'IJobRepository',
             useClass: JobRepository,
         },
     ],
+    exports: [FindJobsUseCase],
 })
 export class JobsModule {}
