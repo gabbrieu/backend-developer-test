@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
     DeepPartial,
     DeleteResult,
+    FindManyOptions,
     FindOneOptions,
     FindOptionsWhere,
     Repository,
@@ -27,5 +28,9 @@ export class JobRepository implements IJobRepository {
 
     async delete(where: FindOptionsWhere<Job>): Promise<DeleteResult> {
         return await this.jobRepo.delete(where);
+    }
+
+    async find(options?: FindManyOptions<Job>): Promise<Job[]> {
+        return await this.jobRepo.find(options);
     }
 }

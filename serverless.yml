@@ -1,13 +1,28 @@
 service: backend-developer-test-serverless
 
+useDotenv: true
+
 plugins:
     - serverless-offline
 provider:
     name: aws
     runtime: nodejs20.x
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action: 's3:ListBucket'
+                  Resource: '*'
+
+                - Effect: Allow
+                  Action:
+                      - 's3:GetObject'
+                      - 's3:PutObject'
+                  Resource: 'arn:aws:s3:::${env:AWS_S3_FEED_BUCKET_NAME}'
+
 functions:
     main:
-        handler: dist/main.handler
+        handler: dist/lambda/main-lambda.handler
         events:
             - http:
                   method: ANY
