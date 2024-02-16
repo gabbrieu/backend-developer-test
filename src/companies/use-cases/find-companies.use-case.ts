@@ -13,7 +13,9 @@ export class FindCompaniesUseCase {
     ) {}
 
     execute(options?: FindManyOptions<Company>): Promise<Company[]> {
-        this.logger.log(`Getting companies with options: ${options}`);
+        this.logger.log(
+            `Getting companies with options: ${JSON.stringify(options)}`
+        );
 
         return this.companyRepository.find(options);
     }
