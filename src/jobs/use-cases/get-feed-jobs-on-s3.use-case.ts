@@ -1,14 +1,14 @@
 import { GetObjectCommand, GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FeedJobDTO } from './jobs/dto/feed-job.dto';
-import { s3Client } from './utils/aws';
+import { s3Client } from '../../utils/aws';
+import { FeedJobDTO } from '../dto/feed-job.dto';
 
 @Injectable()
-export class AppService {
-    constructor(private configService: ConfigService) {}
+export class GetFeedJobsOnS3UseCase {
+    constructor(private readonly configService: ConfigService) {}
 
-    async feed(): Promise<FeedJobDTO[]> {
+    async execute(): Promise<FeedJobDTO[]> {
         try {
             const bucketName: string = this.configService.getOrThrow<string>(
                 'AWS_S3_FEED_BUCKET_NAME'
