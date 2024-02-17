@@ -71,16 +71,23 @@
             "json",
             "ts"
         ],
-        "rootDir": "src",
+        "rootDir": ".",
         "testRegex": ".*\\.spec\\.ts$",
         "transform": {
             "^.+\\.(t|j)s$": "ts-jest"
         },
         "collectCoverageFrom": [
             "**/*.use-case.(t|j)s",
+            "**/*.service.(t|j)s",
             "**/*.controller.(t|j)s"
         ],
         "coverageDirectory": "../coverage",
+        "coveragePathIgnorePatterns": [
+            "node_modules",
+            ".module.ts",
+            "<rootDir>/dist",
+            ".mock.ts"
+        ],
         "testEnvironment": "node"
     }
 }

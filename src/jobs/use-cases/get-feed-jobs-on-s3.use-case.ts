@@ -16,7 +16,7 @@ export class GetFeedJobsOnS3UseCase {
 
     async execute(): Promise<FeedJobDTO[]> {
         try {
-            this.logger.log('Getting job file from S3');
+            this.logger.log('Getting jobs file from S3');
 
             const bucketName: string = this.configService.getOrThrow<string>(
                 'AWS_S3_FEED_BUCKET_NAME'

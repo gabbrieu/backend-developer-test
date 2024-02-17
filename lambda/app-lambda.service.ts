@@ -1,5 +1,5 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { Inject, InternalServerErrorException } from '@nestjs/common';
+import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FeedJobDTO } from '../src/jobs/dto/feed-job.dto';
 import { EJobStatus, Job } from '../src/jobs/entities/job.entity';
@@ -7,6 +7,8 @@ import { FindJobsUseCase } from '../src/jobs/use-cases/find-jobs.use-case';
 import { s3Client } from '../src/utils/aws';
 
 export class AppLambdaService {
+    private readonly logger = new Logger(AppLambdaService.name);
+
     constructor(
         @Inject(FindJobsUseCase)
         private readonly findJobsUseCase: FindJobsUseCase,
@@ -15,6 +17,8 @@ export class AppLambdaService {
 
     async saveJobFile(): Promise<void> {
         try {
+            this.logger.log('Saving jobs file on S3');
+
             const bucketName: string = this.configService.getOrThrow<string>(
                 'AWS_S3_FEED_BUCKET_NAME'
             );
@@ -36,9 +40,9 @@ export class AppLambdaService {
                 Body: JSON.stringify(formattedJobs),
             });
 
-            const response = await s3Client.send(s3Command);
+            await s3Client.send(s3Command);
 
-            console.info(response);
+            this.logger.log('Jobs file saved on S3');
         } catch (error) {
             const message = error?.message ?? error;
 

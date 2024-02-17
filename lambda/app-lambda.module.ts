@@ -1,11 +1,11 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { Job } from '../src/jobs/entities/job.entity';
 import { JobsModule } from '../src/jobs/jobs.module';
-import { AppLambdaService } from './app-lambda-service';
-import { AppLambdaController } from './app-lambda.controller';
+import { AppLambdaService } from './app-lambda.service';
 
 @Module({
     imports: [
@@ -24,9 +24,9 @@ import { AppLambdaController } from './app-lambda.controller';
             synchronize: true,
         }),
         TypeOrmModule.forFeature([Job]),
+        CacheModule.register({ isGlobal: true, ttl: 30000 }),
         JobsModule,
     ],
-    controllers: [AppLambdaController], // TODO: REMOVE CONTROLLER
     providers: [AppLambdaService],
 })
 export class AppLambdaModule {}
