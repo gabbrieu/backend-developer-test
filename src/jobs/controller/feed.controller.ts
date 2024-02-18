@@ -23,6 +23,8 @@ export class FeedController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'S3 file fetched',
+        type: FeedJobDTO,
+        isArray: true,
     })
     @ApiOperation({
         summary: 'Returns the feed jobs from S3 with status = PUBLISHED',

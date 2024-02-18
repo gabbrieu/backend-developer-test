@@ -15,6 +15,8 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
+import { IErrorResponse } from '../../utils/error.interface';
+import { PublishJobResponseDTO } from '../dto/publish-job.dto';
 import { SaveJobDTO } from '../dto/save-job.dto';
 import { UpdateJobDTO } from '../dto/update-job.dto';
 import { Job } from '../entities/job.entity';
@@ -50,6 +52,7 @@ export class JobsController {
     @ApiResponse({
         status: HttpStatus.CREATED,
         description: 'Job  successfully created',
+        type: Job,
     })
     @ApiOperation({
         summary: 'Creates a new job',
@@ -63,19 +66,22 @@ export class JobsController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Job successfully published',
+        type: PublishJobResponseDTO,
     })
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,
         description: 'Job not found',
+        type: IErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.FORBIDDEN,
         description: `It is only possible to publish a job with "draft" status`,
+        type: IErrorResponse,
     })
     @ApiOperation({
         summary: `Publishes the job (changes the status flag to "published")`,
     })
-    async publish(@Param('job_id') id: string): Promise<Job> {
+    async publish(@Param('job_id') id: string): Promise<PublishJobResponseDTO> {
         return this.publishOneJobUseCase.execute(id);
     }
 
@@ -83,18 +89,22 @@ export class JobsController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Job successfully updated',
+        type: Job,
     })
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,
         description: 'Job not found',
+        type: IErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
         description: 'Error with the body sent',
+        type: IErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.FORBIDDEN,
         description: `It is only possible to update a job with "draft" status`,
+        type: IErrorResponse,
     })
     @ApiOperation({
         summary: 'Updates the title, location and description of a job',
@@ -110,15 +120,18 @@ export class JobsController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Job successfully archived',
+        type: Job,
     })
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,
         description: 'Job not found',
+        type: IErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.FORBIDDEN,
         description:
             'It is only possible to archive an active job (status flag = "published")',
+        type: IErrorResponse,
     })
     @ApiOperation({
         summary:
@@ -137,10 +150,12 @@ export class JobsController {
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,
         description: 'Job not found',
+        type: IErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.FORBIDDEN,
         description: `It is only possible to delete a job with "draft" status`,
+        type: IErrorResponse,
     })
     @ApiOperation({
         summary: 'Deletes a job posting draft',
