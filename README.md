@@ -1,5 +1,102 @@
 # Backend Developer Technical Assessment
 
+# User instructions
+
+## Techs
+
+-   [AWS Services](https://aws.amazon.com/pt/)
+-   [NestJS](https://nestjs.com/)
+-   [Docker](https://www.docker.com/)
+-   [Serverless Framework](https://www.serverless.com/)
+-   [Swagger](https://swagger.io/)
+-   [Jest](https://jestjs.io/pt-BR/)
+-   [PostgreSQL](https://www.postgresql.org/) + [TypeORM](https://typeorm.io/)
+
+## Prerequisites
+
+1. Docker and Docker Compose (Optional)
+2. Serverless framework
+
+Create a .env file on the project root folder following the .env.example file.
+
+## Booting up the API
+
+### With Docker
+
+To start the API with Docker, run the following command:
+
+```bash
+docker compose up -d
+```
+
+### Without Docker
+
+To start the API without docker, first install the dependencies with the command on the project root:
+
+```bash
+yarn install
+```
+
+Next run the command to start up the API:
+
+```bash
+yarn start:dev
+```
+
+With or without docker the commands will start the API in development mode on `localhost:${PORT}` with PORT beeing the PORT setted on .env file or `3000` as a default value.
+
+## Endpoints
+
+The API endpoints were developed following exactly the [callenge description](#user-actions).
+
+## Tests
+
+The tests were developed using Jest. To run all tests with coverage information run the following command:
+
+```bash
+yarn test:cov
+```
+
+## Documentation
+
+The API documentation was developed using Swagger. To see the documentation page go to:
+
+```
+http://localhost:${PORT}/api
+```
+
+## Logs
+
+The logging system was made using the Logger built-in package of NestJS exported by `@nestjs/common`.
+
+## Error Handling
+
+The API error handling was made using NestJS global filter with a custom exception class: `HttpExceptionFilter`.
+
+## Lambda Functions
+
+The 2 lambda functions are located in the `lambda/` folder. They were also made with NestJS but with Serverless Framework.
+
+The `check-harmful-content/` folder is responsible to handler the lambda that checks harmful content on description and title of a Job that was sent to be published. The function or publishes a Job that has no harmful content or rejects it and add the reason on notes column of the Job on database. The content is verified using OpenAI API.
+
+The `save-job-file/` folder is responsible to handler the lambda that checks periodically for a Job that is published and adds it to a folder on S3 to be available to `GET /feed` endpoint.
+
+### Deploy the Lambda
+
+To deploy the lambda on AWS simple run the command:
+
+```bash
+serverless deploy
+```
+
+## Bonus Questions Answers
+
+1. One of many solutions would be cache the results of most commom words and use the results as the OpenAI API response. And from times to times, updates the cache once with new API analytics responses. Other solution would be create a request limit per user and when the limit is reached, the request is redirected to a rejection queue to be processed later on. And finally, one other solution would be observe AWS CloudWatch to see the peak times on Lambda and schedule the AWS Auto Scaling to increase the provisioned concurrency of the Lambda on this times. The solutions could be used together or separately.
+
+2. I would use the AWS CloudFront service since it gives points of presence (PoPs) around the world using the nearest servers to the user and serves the application lowing the latency and giving high availability and performance to the app. The simple use of the service attached to a Lambda through Lambda Function URL decreases the latency significantly because the request is routed to the server that provides the lowest latency to the user.
+
+# Challenge Informations
+
 ## Welcome!
 
 We're excited to have you participate in our Backend Developer technical assessment. This test is designed to gauge your expertise in backend development, with a focus on architectural and organizational skills. Below, you'll find comprehensive instructions to set up and complete the project. Remember, completing every step is not mandatory; some are optional but can enhance your application.
