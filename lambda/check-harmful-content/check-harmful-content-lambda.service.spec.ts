@@ -9,7 +9,17 @@ import { makeJobMock } from '../../src/utils/mocks';
 import { openAI } from '../../src/utils/openai';
 import { CheckHarmfulContentLambdaService } from './check-harmful-content-lambda.service';
 
-jest.mock('../../src/utils/openai');
+jest.mock('openai', () => {
+    return jest.fn().mockImplementation(() => {
+        return {
+            moderations: {
+                create: jest.fn().mockImplementation(async () => {
+                    return jest.fn();
+                }),
+            },
+        };
+    });
+});
 
 describe('CheckHarmfulContentLambdaService', () => {
     let checkHarmfulContentLambdaService: CheckHarmfulContentLambdaService;

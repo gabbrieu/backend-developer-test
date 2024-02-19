@@ -23,7 +23,6 @@
     "dependencies": {
         "@aws-sdk/client-s3": "^3.514.0",
         "@aws-sdk/client-sqs": "^3.515.0",
-        "@codegenie/serverless-express": "^4.13.0",
         "@nestjs/cache-manager": "^2.2.1",
         "@nestjs/common": "^10.0.0",
         "@nestjs/config": "^3.2.0",
@@ -60,7 +59,7 @@
         "prettier": "^3.0.0",
         "serverless-iam-roles-per-function": "^3.2.0",
         "serverless-offline": "^13.3.3",
-        "serverless-plugin-optimize": "^4.2.1-rc.1",
+        "serverless-plugin-common-excludes": "^4.0.0",
         "serverless-plugin-typescript": "^2.1.5",
         "source-map-support": "^0.5.21",
         "supertest": "^6.3.3",

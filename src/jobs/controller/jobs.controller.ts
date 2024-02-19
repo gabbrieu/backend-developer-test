@@ -51,7 +51,7 @@ export class JobsController {
     @HttpCode(HttpStatus.CREATED)
     @ApiResponse({
         status: HttpStatus.CREATED,
-        description: 'Job  successfully created',
+        description: 'Job successfully created',
         type: Job,
     })
     @ApiOperation({

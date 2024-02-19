@@ -3,21 +3,21 @@ service: backend-developer-test-serverless
 useDotenv: true
 
 package:
+    excludeDevDependencies: true
     individually: true
     patterns:
-        - '!src/**/*.spec.ts'
-        - '!src/**/*.spec.js'
+        - '!src/**/*.spec.*'
 
 plugins:
     - 'serverless-plugin-typescript'
-    - serverless-plugin-optimize
+    - serverless-plugin-common-excludes
     - serverless-iam-roles-per-function
     - serverless-offline
 
 provider:
     name: aws
     runtime: nodejs20.x
-    region: ${env:AWS_S3_REGION, opt:stage, 'us-east-1'}
+    region: ${self:provider.environment.AWS_S3_REGION}
     stage: ${opt:stage, 'dev'}
     environment:
         PORT: ${param:PORT, env:PORT}
@@ -25,7 +25,7 @@ provider:
         # S3
         AWS_S3_FEED_BUCKET_NAME: ${param:AWS_S3_FEED_BUCKET_NAME, env:AWS_S3_FEED_BUCKET_NAME}
         AWS_S3_FEED_OBJECT_KEY: ${param:AWS_S3_FEED_OBJECT_KEY, env:AWS_S3_FEED_OBJECT_KEY}
-        AWS_S3_REGION: ${param:AWS_S3_REGION, env:AWS_S3_REGION}
+        AWS_S3_REGION: ${param:AWS_S3_REGION, opt:stage, env:AWS_S3_REGION, 'us-east-1'}
 
         # SQS
         AWS_SQS_ARN: ${param:AWS_SQS_ARN, env:AWS_SQS_ARN}
@@ -43,7 +43,7 @@ provider:
         DATABASE_NAME: ${param:DATABASE_NAME, env:DATABASE_NAME}
 
 functions:
-    main:
+    saveJobFile:
         handler: lambda/save-job-file/save-job-file-lambda-handler.handler
         iamRoleStatementsName: s3-custom-role
         iamRoleStatements:
