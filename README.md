@@ -29,15 +29,19 @@ To start the API with Docker, run the following command:
 docker compose up -d
 ```
 
+With Docker, the database with the API is already configured with the ddl files (inital database configuration) already executed in the container initial startup.
+
 ### Without Docker
 
-To start the API without docker, first install the dependencies with the command on the project root:
+To start the API without docker, first configure a local database with PostgreSQL-16 and fill the .env with the credentials.
+
+Next install the dependencies with the command on the project root:
 
 ```bash
 yarn install
 ```
 
-Next run the command to start up the API:
+Then run the command to start up the API:
 
 ```bash
 yarn start:dev
@@ -47,7 +51,7 @@ With or without docker the commands will start the API in development mode on `l
 
 ## Endpoints
 
-The API endpoints were developed following exactly the [callenge description](#user-actions).
+The API endpoints were developed following exactly the [challenge description](#user-actions).
 
 ## Tests
 
@@ -79,7 +83,7 @@ The 2 lambda functions are located in the `lambda/` folder. They were also made 
 
 The `check-harmful-content/` folder is responsible to handler the lambda that checks harmful content on description and title of a Job that was sent to be published. The function or publishes a Job that has no harmful content or rejects it and add the reason on notes column of the Job on database. The content is verified using OpenAI API.
 
-The `save-job-file/` folder is responsible to handler the lambda that checks periodically for a Job that is published and adds it to a folder on S3 to be available to `GET /feed` endpoint.
+The `save-job-file/` folder is responsible to handler the lambda that checks periodically for a Job that is published and adds it to a folder on S3 to be available to `GET /feed` endpoint. (AWS EventBridge needs to be configured).
 
 ### Deploy the Lambda
 
