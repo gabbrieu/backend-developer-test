@@ -10,6 +10,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -36,9 +37,10 @@ export class Job {
     id: string;
 
     @ManyToOne(() => Company, (company) => company.jobs, { nullable: false })
+    @JoinColumn({ name: 'company_id' })
     @ApiProperty({
         type: String,
-        name: 'companyId',
+        name: 'company_id',
         format: 'uuid',
         description: 'Company ID',
         example: '94f9b58d-5e9d-46a4-8d3b-2a0327f4c889',

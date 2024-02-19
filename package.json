@@ -22,6 +22,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.514.0",
+        "@aws-sdk/client-sqs": "^3.515.0",
         "@codegenie/serverless-express": "^4.13.0",
         "@nestjs/cache-manager": "^2.2.1",
         "@nestjs/common": "^10.0.0",
@@ -35,6 +36,7 @@
         "cache-manager": "^5.4.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
+        "openai": "^4.28.0",
         "pg": "^8.11.3",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.8.1",
@@ -56,7 +58,10 @@
         "eslint-plugin-prettier": "^5.0.0",
         "jest": "^29.5.0",
         "prettier": "^3.0.0",
+        "serverless-iam-roles-per-function": "^3.2.0",
         "serverless-offline": "^13.3.3",
+        "serverless-plugin-optimize": "^4.2.1-rc.1",
+        "serverless-plugin-typescript": "^2.1.5",
         "source-map-support": "^0.5.21",
         "supertest": "^6.3.3",
         "ts-jest": "^29.1.0",
@@ -86,7 +91,8 @@
             "node_modules",
             ".module.ts",
             "<rootDir>/dist",
-            ".mock.ts"
+            ".mock.ts",
+            ".build"
         ],
         "testEnvironment": "node"
     }

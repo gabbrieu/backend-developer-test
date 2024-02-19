@@ -3,24 +3,27 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { mockClient } from 'aws-sdk-client-mock';
-import { EJobStatus, Job } from '../src/jobs/entities/job.entity';
-import { FindJobsUseCase } from '../src/jobs/use-cases/find-jobs.use-case';
-import { makeJobMock } from '../src/utils/mocks';
-import { AppLambdaService } from './app-lambda.service';
+import { EJobStatus, Job } from '../../src/jobs/entities/job.entity';
+import { FindJobsUseCase } from '../../src/jobs/use-cases/find-jobs.use-case';
+import { makeJobMock } from '../../src/utils/mocks';
+import { SaveJobFileLambdaService } from './save-job-file-lambda.service';
 
-describe('AppLambdaService', () => {
-    let appLambdaService: AppLambdaService;
+describe('SaveJobFileLambdaService', () => {
+    let saveJobFileLambdaService: SaveJobFileLambdaService;
     let configService: ConfigService;
     let findJobsUseCase: FindJobsUseCase;
 
     const s3Mock = mockClient(S3Client);
+
+    console.log = jest.fn();
+    console.error = jest.fn();
 
     beforeEach(async () => {
         s3Mock.reset();
 
         const module = await Test.createTestingModule({
             providers: [
-                AppLambdaService,
+                SaveJobFileLambdaService,
                 ConfigService,
                 FindJobsUseCase,
                 {
@@ -28,9 +31,13 @@ describe('AppLambdaService', () => {
                     useValue: {},
                 },
             ],
-        }).compile();
+        })
+            .setLogger(console)
+            .compile();
 
-        appLambdaService = module.get<AppLambdaService>(AppLambdaService);
+        saveJobFileLambdaService = module.get<SaveJobFileLambdaService>(
+            SaveJobFileLambdaService
+        );
         configService = module.get<ConfigService>(ConfigService);
         findJobsUseCase = module.get<FindJobsUseCase>(FindJobsUseCase);
     });
@@ -54,7 +61,9 @@ describe('AppLambdaService', () => {
 
             s3Mock.on(PutObjectCommand).resolves({});
 
-            await expect(appLambdaService.saveJobFile()).resolves.not.toThrow();
+            await expect(
+                saveJobFileLambdaService.saveJobFile()
+            ).resolves.not.toThrow();
         });
 
         it('should throw a INTERNAL_SERVER_ERROR when something bad happens', async () => {
@@ -64,7 +73,7 @@ describe('AppLambdaService', () => {
                 throw new Error(errorMessage);
             });
 
-            appLambdaService.saveJobFile().catch((e) => {
+            saveJobFileLambdaService.saveJobFile().catch((e) => {
                 expect(e).toBeInstanceOf(InternalServerErrorException);
                 expect(e.message).toEqual(
                     `Something bad happens when trying to send the file to S3: ${errorMessage}`
@@ -72,12 +81,12 @@ describe('AppLambdaService', () => {
             });
         });
 
-        it('should throw a INTERNAL_SERVER_ERROR when something bad happens with error object withou the message property', async () => {
+        it('should throw a INTERNAL_SERVER_ERROR when something bad happens with error object without the message property', async () => {
             jest.spyOn(configService, 'getOrThrow').mockImplementation(() => {
                 throw 'AWS_S3_FEED_BUCKET_NAME is not set';
             });
 
-            appLambdaService.saveJobFile().catch((e) => {
+            saveJobFileLambdaService.saveJobFile().catch((e) => {
                 expect(e).toBeInstanceOf(InternalServerErrorException);
                 expect(e.message).toEqual(
                     `Something bad happens when trying to send the file to S3: AWS_S3_FEED_BUCKET_NAME is not set`

@@ -1,5 +1,7 @@
+import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { makeJobMock } from '../../utils/mocks';
+import { PublishJobResponseDTO } from '../dto/publish-job.dto';
 import { EJobStatus, Job } from '../entities/job.entity';
 import { ArchiveJobUseCase } from '../use-cases/archive-job.use-case';
 import { CreateJobUseCase } from '../use-cases/create-job.use-case';
@@ -18,6 +20,9 @@ describe('JobsController', () => {
     let archiveJobUseCase: ArchiveJobUseCase;
     let deleteJobUseCase: DeleteJobUseCase;
 
+    console.log = jest.fn();
+    console.error = jest.fn();
+
     beforeEach(async () => {
         const module = await Test.createTestingModule({
             controllers: [JobsController],
@@ -29,12 +34,15 @@ describe('JobsController', () => {
                 UpdateJobUseCase,
                 ArchiveJobUseCase,
                 DeleteJobUseCase,
+                ConfigService,
                 {
                     provide: 'IJobRepository',
                     useValue: {},
                 },
             ],
-        }).compile();
+        })
+            .setLogger(console)
+            .compile();
 
         jobsController = module.get<JobsController>(JobsController);
         createJobUseCase = module.get<CreateJobUseCase>(CreateJobUseCase);
@@ -66,14 +74,16 @@ describe('JobsController', () => {
         it('should publish a job', async () => {
             const jobMock: Job = makeJobMock({ status: EJobStatus.PUBLISHED });
 
-            jest.spyOn(publishOneJobUseCase, 'execute').mockResolvedValue(
-                jobMock
-            );
+            jest.spyOn(publishOneJobUseCase, 'execute').mockResolvedValue({
+                message: 'Job succesfully sent to check harmful content',
+            });
 
-            const response: Job = await jobsController.publish(jobMock.id);
+            const response: PublishJobResponseDTO =
+                await jobsController.publish(jobMock.id);
 
-            expect(response.status).toStrictEqual(EJobStatus.PUBLISHED);
-            expect(response).toStrictEqual(jobMock);
+            expect(response).toStrictEqual({
+                message: 'Job succesfully sent to check harmful content',
+            });
         });
     });
 

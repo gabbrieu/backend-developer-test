@@ -32,6 +32,6 @@ import { UpdateJobUseCase } from './use-cases/update-job.use-case';
             useClass: JobRepository,
         },
     ],
-    exports: [FindJobsUseCase],
+    exports: [FindJobsUseCase, SaveJobUseCase],
 })
 export class JobsModule {}

@@ -1,5 +1,9 @@
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { ForbiddenException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import { mockClient } from 'aws-sdk-client-mock';
+import { sqsClient } from '../../utils/aws';
 import { makeJobMock } from '../../utils/mocks';
 import { EJobStatus, Job } from '../entities/job.entity';
 import { FindOneJobUseCase } from './find-one-job.use-case';
@@ -9,25 +13,34 @@ import { SaveJobUseCase } from './save-job.use-case';
 describe('PublishOneJobUseCase', () => {
     let publishOneJobUseCase: PublishOneJobUseCase;
     let findOneJobUseCase: FindOneJobUseCase;
-    let saveJobUseCase: SaveJobUseCase;
+    let configService: ConfigService;
+    const s3Mock = mockClient(sqsClient);
+
+    console.log = jest.fn();
+    console.error = jest.fn();
 
     beforeEach(async () => {
+        s3Mock.reset();
+
         const module = await Test.createTestingModule({
             providers: [
                 PublishOneJobUseCase,
                 FindOneJobUseCase,
                 SaveJobUseCase,
+                ConfigService,
                 {
                     provide: 'IJobRepository',
                     useValue: {},
                 },
             ],
-        }).compile();
+        })
+            .setLogger(console)
+            .compile();
 
         publishOneJobUseCase =
             module.get<PublishOneJobUseCase>(PublishOneJobUseCase);
         findOneJobUseCase = module.get<FindOneJobUseCase>(FindOneJobUseCase);
-        saveJobUseCase = module.get<SaveJobUseCase>(SaveJobUseCase);
+        configService = module.get<ConfigService>(ConfigService);
     });
 
     describe('execute', () => {
@@ -35,16 +48,16 @@ describe('PublishOneJobUseCase', () => {
             const job: Job = makeJobMock();
 
             jest.spyOn(findOneJobUseCase, 'execute').mockResolvedValue(job);
-            jest.spyOn(saveJobUseCase, 'execute').mockResolvedValue({
-                ...job,
-                status: EJobStatus.PUBLISHED,
-            });
+            jest.spyOn(configService, 'getOrThrow').mockReturnValue(
+                'AWS_SQS_URL'
+            );
+
+            s3Mock.on(SendMessageCommand).resolves({});
 
             const response = await publishOneJobUseCase.execute(job.id);
 
             expect(response).toStrictEqual({
-                ...job,
-                status: EJobStatus.PUBLISHED,
+                message: 'Job succesfully sent to check harmful content',
             });
         });
 

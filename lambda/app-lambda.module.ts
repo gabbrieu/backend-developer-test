@@ -5,7 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { Job } from '../src/jobs/entities/job.entity';
 import { JobsModule } from '../src/jobs/jobs.module';
-import { AppLambdaService } from './app-lambda.service';
+import { CheckHarmfulContentLambdaService } from './check-harmful-content/check-harmful-content-lambda.service';
+import { SaveJobFileLambdaService } from './save-job-file/save-job-file-lambda.service';
 
 @Module({
     imports: [
@@ -27,6 +28,6 @@ import { AppLambdaService } from './app-lambda.service';
         CacheModule.register({ isGlobal: true, ttl: 30000 }),
         JobsModule,
     ],
-    providers: [AppLambdaService],
+    providers: [SaveJobFileLambdaService, CheckHarmfulContentLambdaService],
 })
 export class AppLambdaModule {}

@@ -14,12 +14,17 @@ describe('GetFeedJobsOnS3UseCase', () => {
     let configService: ConfigService;
     const s3Mock = mockClient(S3Client);
 
+    console.log = jest.fn();
+    console.error = jest.fn();
+
     beforeEach(async () => {
         s3Mock.reset();
 
         const module = await Test.createTestingModule({
             providers: [GetFeedJobsOnS3UseCase, ConfigService],
-        }).compile();
+        })
+            .setLogger(console)
+            .compile();
 
         getFeedJobsOnS3UseCase = module.get<GetFeedJobsOnS3UseCase>(
             GetFeedJobsOnS3UseCase

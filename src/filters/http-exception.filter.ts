@@ -7,6 +7,7 @@ import {
     Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { IErrorResponse } from '../utils/error.interface';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -34,7 +35,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         const message = exception?.message ?? 'Internal server error';
 
-        const devErrorResponse = {
+        const devErrorResponse: IErrorResponse = {
             message: exception?.message,
             errorName: exception?.name,
             statusCode,

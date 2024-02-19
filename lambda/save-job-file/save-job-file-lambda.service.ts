@@ -1,13 +1,19 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+    Inject,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FeedJobDTO } from '../src/jobs/dto/feed-job.dto';
-import { EJobStatus, Job } from '../src/jobs/entities/job.entity';
-import { FindJobsUseCase } from '../src/jobs/use-cases/find-jobs.use-case';
-import { s3Client } from '../src/utils/aws';
+import { FeedJobDTO } from '../../src/jobs/dto/feed-job.dto';
+import { EJobStatus, Job } from '../../src/jobs/entities/job.entity';
+import { FindJobsUseCase } from '../../src/jobs/use-cases/find-jobs.use-case';
+import { s3Client } from '../../src/utils/aws';
 
-export class AppLambdaService {
-    private readonly logger = new Logger(AppLambdaService.name);
+@Injectable()
+export class SaveJobFileLambdaService {
+    private readonly logger = new Logger(SaveJobFileLambdaService.name);
 
     constructor(
         @Inject(FindJobsUseCase)
@@ -45,6 +51,8 @@ export class AppLambdaService {
             this.logger.log('Jobs file saved on S3');
         } catch (error) {
             const message = error?.message ?? error;
+
+            this.logger.error(`Error while saving file on S3: ${message}`);
 
             throw new InternalServerErrorException(
                 `Something bad happens when trying to send the file to S3: ${message}`
