@@ -23,7 +23,13 @@ Create a .env file on the project root folder following the .env.example file.
 
 ### With Docker
 
-To start the API with Docker, run the following command:
+To start the API with Docker, first install the dependencies on host with:
+
+```bash
+yarn install
+```
+
+Next startup the application with the command:
 
 ```bash
 docker compose up -d
