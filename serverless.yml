@@ -1,0 +1,72 @@
+service: backend-developer-test-serverless
+
+useDotenv: true
+
+package:
+    excludeDevDependencies: true
+    individually: true
+    patterns:
+        - '!src/**/*.spec.*'
+
+plugins:
+    - 'serverless-plugin-typescript'
+    - serverless-plugin-common-excludes
+    - serverless-iam-roles-per-function
+    - serverless-offline
+
+provider:
+    name: aws
+    runtime: nodejs20.x
+    region: ${self:provider.environment.AWS_S3_REGION}
+    stage: ${opt:stage, 'dev'}
+    environment:
+        PORT: ${param:PORT, env:PORT}
+
+        # S3
+        AWS_S3_FEED_BUCKET_NAME: ${param:AWS_S3_FEED_BUCKET_NAME, env:AWS_S3_FEED_BUCKET_NAME}
+        AWS_S3_FEED_OBJECT_KEY: ${param:AWS_S3_FEED_OBJECT_KEY, env:AWS_S3_FEED_OBJECT_KEY}
+        AWS_S3_REGION: ${param:AWS_S3_REGION, opt:stage, env:AWS_S3_REGION, 'us-east-1'}
+
+        # SQS
+        AWS_SQS_ARN: ${param:AWS_SQS_ARN, env:AWS_SQS_ARN}
+        AWS_SQS_URL: ${param:AWS_SQS_URL, env:AWS_SQS_URL}
+
+        # OPENAI
+        OPEN_API_KEY: ${param:OPEN_API_KEY, env:OPEN_API_KEY}
+
+        # DATABASE
+        DATABASE_HOST: ${param:DATABASE_HOST, env:DATABASE_HOST}
+        DATABASE_HOST_API: ${param:DATABASE_HOST_API, env:DATABASE_HOST_API}
+        DATABASE_PORT: ${param:DATABASE_PORT, env:DATABASE_PORT}
+        DATABASE_USERNAME: ${param:DATABASE_USERNAME, env:DATABASE_USERNAME}
+        DATABASE_PASSWORD: ${param:DATABASE_PASSWORD, env:DATABASE_PASSWORD}
+        DATABASE_NAME: ${param:DATABASE_NAME, env:DATABASE_NAME}
+
+functions:
+    saveJobFile:
+        handler: lambda/save-job-file/save-job-file-lambda-handler.handler
+        iamRoleStatementsName: s3-custom-role
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+              Resource: 'arn:aws:s3:::${env:AWS_S3_FEED_BUCKET_NAME}/*'
+
+            - Effect: Allow
+              Action: 's3:ListBucket'
+              Resource: '*'
+        # events:
+        #     - eventBridge:
+        #           schedule: rate(10 minutes)
+
+    checkHarmfulContent:
+        handler: lambda/check-harmful-content/check-harmful-content-lambda-handler.handler
+        iamRoleStatementsName: sqs-custom-role
+        iamRoleStatements:
+            - Effect: Allow
+              Action:
+                  - 'sqs:ReceiveMessage'
+              Resource: ${self:provider.environment.AWS_SQS_ARN}
+        events:
+            - sqs: ${self:provider.environment.AWS_SQS_ARN}

@@ -1,5 +1,112 @@
 # Backend Developer Technical Assessment
 
+# User instructions
+
+## Techs
+
+-   [AWS Services](https://aws.amazon.com/pt/)
+-   [NestJS](https://nestjs.com/)
+-   [Docker](https://www.docker.com/)
+-   [Serverless Framework](https://www.serverless.com/)
+-   [Swagger](https://swagger.io/)
+-   [Jest](https://jestjs.io/pt-BR/)
+-   [PostgreSQL](https://www.postgresql.org/) + [TypeORM](https://typeorm.io/)
+
+## Prerequisites
+
+1. Docker and Docker Compose (Optional)
+2. Serverless framework
+
+Create a .env file on the project root folder following the .env.example file.
+
+## Booting up the API
+
+### With Docker
+
+To start the API with Docker, first install the dependencies on host with:
+
+```bash
+yarn install
+```
+
+Next startup the application with the command:
+
+```bash
+docker compose up -d
+```
+
+With Docker, the database with the API is already configured with the ddl files (inital database configuration) already executed in the container initial startup.
+
+### Without Docker
+
+To start the API without docker, first configure a local database with PostgreSQL-16 and fill the .env with the credentials.
+
+Next install the dependencies with the command on the project root:
+
+```bash
+yarn install
+```
+
+Then run the command to start up the API:
+
+```bash
+yarn start:dev
+```
+
+With or without docker the commands will start the API in development mode on `localhost:${PORT}` with PORT beeing the PORT setted on .env file or `3000` as a default value.
+
+## Endpoints
+
+The API endpoints were developed following exactly the [challenge description](#user-actions).
+
+## Tests
+
+The tests were developed using Jest. To run all tests with coverage information run the following command:
+
+```bash
+yarn test:cov
+```
+
+## Documentation
+
+The API documentation was developed using Swagger. To see the documentation page go to:
+
+```
+http://localhost:${PORT}/api
+```
+
+## Logs
+
+The logging system was made using the Logger built-in package of NestJS exported by `@nestjs/common`.
+
+## Error Handling
+
+The API error handling was made using NestJS global filter with a custom exception class: `HttpExceptionFilter`.
+
+## Lambda Functions
+
+The 2 lambda functions are located in the `lambda/` folder. They were also made with NestJS but with Serverless Framework.
+
+The `check-harmful-content/` folder is responsible to handler the lambda that checks harmful content on description and title of a Job that was sent to be published. The function or publishes a Job that has no harmful content or rejects it and add the reason on notes column of the Job on database. The content is verified using OpenAI API.
+
+The `save-job-file/` folder is responsible to handler the lambda that checks periodically for a Job that is published and adds it to a folder on S3 to be available to `GET /feed` endpoint. (AWS EventBridge needs to be configured).
+
+### Deploy the Lambda
+
+To deploy the lambda on AWS simple run the command:
+
+```bash
+serverless deploy
+```
+
+## Bonus Questions Answers
+
+1. One of many solutions would be cache the results of most commom words and use the results as the OpenAI API response. And from times to times, updates the cache once with new API analytics responses. Other solution would be create a request limit per user and when the limit is reached, the request is redirected to a rejection queue to be processed later on. And finally, one other solution would be observe AWS CloudWatch to see the peak times on Lambda and schedule the AWS Auto Scaling to increase the provisioned concurrency of the Lambda on this times. The solutions could be used together or separately.
+
+2. I would use the AWS CloudFront service since it gives points of presence (PoPs) around the world using the nearest servers to the user and serves the application lowing the latency and giving high availability and performance to the app. The simple use of the service attached to a Lambda through Lambda Function URL decreases the latency significantly because the request is routed to the server that provides the lowest latency to the user.
+
+# Challenge Informations
+
 ## Welcome!
 
 We're excited to have you participate in our Backend Developer technical assessment. This test is designed to gauge your expertise in backend development, with a focus on architectural and organizational skills. Below, you'll find comprehensive instructions to set up and complete the project. Remember, completing every step is not mandatory; some are optional but can enhance your application.
@@ -24,24 +131,24 @@ Your solution should incorporate the following components and libraries:
 
 Convert the following use cases into API endpoints:
 
-- `GET /companies`: List existing companies.
-- `GET /companies/:company_id`: Fetch a specific company by ID.
-- `POST /job`: Create a job posting draft.
-- `PUT /job/:job_id/publish`: Publish a job posting draft.
-- `PUT /job/:job_id`: Edit a job posting draft (title, location, description).
-- `DELETE /job/:job_id`: Delete a job posting draft.
-- `PUT /job/:job_id/archive`: Archive an active job posting.
+-   `GET /companies`: List existing companies.
+-   `GET /companies/:company_id`: Fetch a specific company by ID.
+-   `POST /job`: Create a job posting draft.
+-   `PUT /job/:job_id/publish`: Publish a job posting draft.
+-   `PUT /job/:job_id`: Edit a job posting draft (title, location, description).
+-   `DELETE /job/:job_id`: Delete a job posting draft.
+-   `PUT /job/:job_id/archive`: Archive an active job posting.
 
 ### Integration Features
 
-- Implement a `GET /feed` endpoint to serve a job feed in JSON format, containing published jobs (column `status = 'published'`). Use a caching mechanism to handle high traffic, fetching data from an S3 file updated periodically by an AWS Lambda function. The feed should return the job ID, title, description, company name and the date when the job was created. This endpoint should not query the database, the content must be fetched from S3.
-- This endpoint receives a massive number of requests every minute, so the strategy here is to implement a simple cache mechanism that will fetch a previously stored JSON file containing the published jobs and serve the content in the API. You need to implement a serverless component using AWS Lambda, that will periodically query the published jobs and store the content on S3. The `GET /feed` endpoint should fetch the S3 file and serve the content. You don't need to worry about implementing the schedule, assume it is already created using AWS EventBridge. You only need to create the Lambda component, using NodeJS 20 as a runtime.
+-   Implement a `GET /feed` endpoint to serve a job feed in JSON format, containing published jobs (column `status = 'published'`). Use a caching mechanism to handle high traffic, fetching data from an S3 file updated periodically by an AWS Lambda function. The feed should return the job ID, title, description, company name and the date when the job was created. This endpoint should not query the database, the content must be fetched from S3.
+-   This endpoint receives a massive number of requests every minute, so the strategy here is to implement a simple cache mechanism that will fetch a previously stored JSON file containing the published jobs and serve the content in the API. You need to implement a serverless component using AWS Lambda, that will periodically query the published jobs and store the content on S3. The `GET /feed` endpoint should fetch the S3 file and serve the content. You don't need to worry about implementing the schedule, assume it is already created using AWS EventBridge. You only need to create the Lambda component, using NodeJS 20 as a runtime.
 
 ### Extra Feature (Optional)
 
-- **Job Moderation**: using artificial intelligence, we need to moderate the job content before allowing it to be published, to check for potential harmful content.
-Every time a user requests a job publication (`PUT /job/:job_id/publish`), the API should reply with success to the user, but the job should not be immediately published. It should be queued using AWS SQS, feeding the job to a Lambda component.
-Using OpenAI's free moderation API, create a Lambda component that will evaluate the job title and description, and test for hamrful content. If the content passes the evaluation, the component should change the job status to `published`, otherwise change to `rejected` and add the response from OpenAI API to the `notes` column.
+-   **Job Moderation**: using artificial intelligence, we need to moderate the job content before allowing it to be published, to check for potential harmful content.
+    Every time a user requests a job publication (`PUT /job/:job_id/publish`), the API should reply with success to the user, but the job should not be immediately published. It should be queued using AWS SQS, feeding the job to a Lambda component.
+    Using OpenAI's free moderation API, create a Lambda component that will evaluate the job title and description, and test for hamrful content. If the content passes the evaluation, the component should change the job status to `published`, otherwise change to `rejected` and add the response from OpenAI API to the `notes` column.
 
 ### Bonus Questions
 
@@ -60,13 +167,13 @@ Using OpenAI's free moderation API, create a Lambda component that will evaluate
 
 We will assess:
 
-- Knowledge of JavaScript, Node.js, Express.js.
-- Proficiency with serverless components (Lambda, SQS).
-- Application structure and layering.
-- Effective use of environment variables.
-- Implementation of unit tests, logging, and error handling.
-- Documentation quality and code readability.
-- Commit history and overall code organization.
+-   Knowledge of JavaScript, Node.js, Express.js.
+-   Proficiency with serverless components (Lambda, SQS).
+-   Application structure and layering.
+-   Effective use of environment variables.
+-   Implementation of unit tests, logging, and error handling.
+-   Documentation quality and code readability.
+-   Commit history and overall code organization.
 
 Good luck, and we're looking forward to seeing your innovative solutions!
 Implementation of the user actions and integration features is considered mandatory for the assessment. The extra feature and the bonus questions are optional, but we encourage you to complete them as well, it will give you an additional edge over other candidates.

@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+    app:
+        container_name: api
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        ports:
+            - ${PORT}:${PORT}
+        volumes:
+            - .:/app
+        depends_on:
+            - database
+
+    database:
+        container_name: postgres
+        image: postgres:16
+        environment:
+            POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+            POSTGRES_USER: ${DATABASE_USERNAME}
+            POSTGRES_DB: ${DATABASE_NAME}
+        ports:
+            - '${DATABASE_PORT}:5432'
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+            - ./ddl:/docker-entrypoint-initdb.d
+        restart: always
+
+volumes:
+    postgres-data:
